@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.time.LocalDate;
 
+// Entidad que representa a un pasajero
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -15,16 +16,13 @@ public class Passenger {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String firstName;
+    private String firstName; // Nombre del pasajero
+    private String lastName; // Apellido del pasajero
+    private String documentNumber; // Número de documento de identidad
+    private String documentType; // Tipo de documento (DNI, Pasaporte, etc.)
+    private LocalDate birthDate; // Fecha de nacimiento
 
-    private String lastName;
-
-    private String documentNumber;
-
-    private String documentType;
-
-    private LocalDate birthDate;
-
+    // Relación ManyToOne con Reservation (Un pasajero pertenece a una reserva)
     @ManyToOne
     @JoinColumn(name = "reservation_id", referencedColumnName = "id")
     private Reservation reservation;

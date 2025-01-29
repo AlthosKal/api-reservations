@@ -4,9 +4,9 @@ import com.example.api_reservations.dto.SegmentDTO;
 import com.example.api_reservations.entity.Segment;
 import org.mapstruct.Mapper;
 
+// Mapper para convertir entre Segment y SegmentDTO
 @Mapper(componentModel = "spring")
 public interface SegmentMapper {
     SegmentDTO toDTO(Segment segment);
-
     Segment toEntity(SegmentDTO segmentDTO);
 }

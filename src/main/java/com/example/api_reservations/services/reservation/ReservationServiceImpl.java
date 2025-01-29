@@ -18,16 +18,24 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+/**
+ * Implementación del servicio de reservaciones que maneja la lógica de negocio
+ * para la gestión de reservaciones, itinerarios, precios y pasajeros.
+ */
 @Service
 @Transactional
 @Slf4j
 public class ReservationServiceImpl implements ReservationService {
+    // Inyección de dependencias mediante constructor
     private final ReservationRepository reservationRepository;
     private final ItineraryRepository itineraryRepository;
     private final PriceRepository priceRepository;
     private final ReservationMapper reservationMapper;
     private final CatalogConnector catalogConnector;
 
+    /**
+     * Constructor que inicializa todas las dependencias necesarias.
+     */
     public ReservationServiceImpl(ReservationRepository reservationRepository, ItineraryRepository itineraryRepository,
             PriceRepository priceRepository, ReservationMapper reservationMapper, CatalogConnector catalogConnector) {
         this.reservationRepository = reservationRepository;
@@ -37,6 +45,10 @@ public class ReservationServiceImpl implements ReservationService {
         this.catalogConnector = catalogConnector;
     }
 
+    /**
+     * {@inheritDoc}
+     * Implementa consulta de solo lectura para obtener todas las reservaciones.
+     */
     @Override
     @Transactional(readOnly = true)
     public List<ReservationDTO> getReservations() {
@@ -44,6 +56,10 @@ public class ReservationServiceImpl implements ReservationService {
         return reservationMapper.toDTOList(reservations);
     }
 
+    /**
+     * {@inheritDoc}
+     * Implementa consulta de solo lectura para obtener una reservación por ID.
+     */
     @Override
     @Transactional(readOnly = true)
     public ReservationDTO getReservationById(Long id) {
@@ -52,9 +68,13 @@ public class ReservationServiceImpl implements ReservationService {
         return reservationMapper.toDTO(reservation);
     }
 
+    /**
+     * {@inheritDoc}
+     * Valida las ciudades de origen y destino de cada segmento antes de crear la reservación.
+     */
     @Override
     public ReservationDTO validateAndCreateReservation(ReservationDTO reservationDTO) {
-        // Validar cada segmento del itinerario
+        // Validación de cada segmento del itinerario
         for (SegmentDTO segmentDTO : reservationDTO.getItinerary().getSegments()) {
             try {
                 // Validar las ciudades de origen y destino
@@ -71,12 +91,12 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     /**
-     * Método auxiliar para validar una ciudad.
-     *
-     * @param cityCode
-     *            Código de la ciudad a validar
-     * @param cityType
-     *            Tipo de ciudad (Origin o Destination)
+     * Valida la existencia de una ciudad en el catálogo.
+     * @param cityCode Código de la ciudad a validar
+     * @param cityType Tipo de ciudad (Origin/Destination)
+     * @throws ResourceNotFoundException si la ciudad no existe
+     * @throws CatalogClientException si hay un error de cliente al consultar el catálogo
+     * @throws CatalogServerException si hay un error de servidor al consultar el catálogo
      */
     private void validateCity(String cityCode, String cityType) {
         CityDTO city = catalogConnector.getCityDTOBlocking(cityCode);
@@ -84,6 +104,11 @@ public class ReservationServiceImpl implements ReservationService {
             throw new ResourceNotFoundException("Invalid city code for " + cityType + ": " + cityCode);
         }
     }
+    /**
+     * {@inheritDoc}
+     * Implementa la lógica de creación de una nueva reservación manejando las relaciones
+     * entre entidades y su persistencia en cascada.
+     */
 
     @Override
     public ReservationDTO createReservation(ReservationDTO reservationDTO) {
@@ -131,6 +156,11 @@ public class ReservationServiceImpl implements ReservationService {
         return reservationMapper.toDTO(savedReservation);
     }
 
+    /**
+     * {@inheritDoc}
+     * Implementa la actualización de una reservación existente, manejando la actualización
+     * de todas las entidades relacionadas y sus relaciones.
+     */
     @Override
     public ReservationDTO updateReservation(Long id, ReservationDTO reservationDTO) {
         // Cargar la reserva existente
@@ -173,6 +203,10 @@ public class ReservationServiceImpl implements ReservationService {
         return reservationMapper.toDTO(savedReservation);
     }
 
+    /**
+     * {@inheritDoc}
+     * Implementa la eliminación de una reservación verificando su existencia previa.
+     */
     @Override
     public void deleteReservation(Long id) {
         if (!reservationRepository.existsById(id)) {

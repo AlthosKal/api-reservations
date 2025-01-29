@@ -6,14 +6,13 @@ import org.mapstruct.Mapper;
 
 import java.util.List;
 
+// Mapper para convertir entre Passenger y PassengerDTO
 @Mapper(componentModel = "spring")
 public interface PassengerMapper {
     PassengerDTO toDTO(Passenger passenger);
-
     Passenger toEntity(PassengerDTO dto);
 
-    // Corregir el mapeo de listas
+    // Métodos auxiliares para convertir listas
     List<PassengerDTO> toDTOList(List<Passenger> passengers);
-
     List<Passenger> toEntityList(List<PassengerDTO> dtos);
 }

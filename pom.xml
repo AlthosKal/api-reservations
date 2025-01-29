@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <!-- Especifica la versión del modelo POM -->
     <modelVersion>4.0.0</modelVersion>
 
+    <!-- Definición del proyecto padre que hereda propiedades y configuraciones comunes -->
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
@@ -10,12 +12,14 @@
         <relativePath/>
     </parent>
 
+    <!-- Identificadores básicos del proyecto -->
     <groupId>com.example</groupId>
     <artifactId>api-reservations</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>api-reservations</name>
     <description>Demo project for Spring Boot</description>
 
+    <!-- Propiedades definidas para la configuración del proyecto -->
     <properties>
         <!-- Java Version -->
         <java.version>17</java.version>
@@ -45,8 +49,9 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
 
+    <!-- Dependencias que el proyecto requiere -->
     <dependencies>
-        <!-- Spring Boot Starters -->
+        <!-- Spring Boot Starters: proporcionan configuraciones predeterminadas para integrar fácilmente las bibliotecas -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -76,15 +81,15 @@
             <artifactId>spring-boot-starter-logging</artifactId>
         </dependency>
 
-        <!-- Database -->
+        <!-- Base de datos PostgreSQL -->
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <version>${postgresql.version}</version>
-            <scope>runtime</scope>
+            <scope>runtime</scope> <!-- Se define como runtime ya que solo se necesita en ejecución -->
         </dependency>
 
-        <!-- Development Tools -->
+        <!-- Herramientas de desarrollo como Lombok para evitar la escritura de código repetitivo -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -96,74 +101,76 @@
             <version>${mapstruct.version}</version>
         </dependency>
 
-        <!-- Resilience4j -->
+        <!-- Resilience4j para manejo de fallos y resiliencia -->
         <dependency>
             <groupId>io.github.resilience4j</groupId>
             <artifactId>resilience4j-spring-boot3</artifactId>
             <version>${resilience4j.version}</version>
         </dependency>
 
-        <!-- Documentation -->
+        <!-- Documentación de API con OpenAPI -->
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
             <version>${springdoc-openapi.version}</version>
         </dependency>
 
-        <!-- Logging -->
+        <!-- Biblioteca para mejorar los mensajes de consola -->
         <dependency>
             <groupId>org.fusesource.jansi</groupId>
             <artifactId>jansi</artifactId>
             <version>${jansi.version}</version>
         </dependency>
 
-        <!-- Test -->
+        <!-- Dependencia para realizar pruebas -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
+            <scope>test</scope> <!-- Solo se usa en el entorno de pruebas -->
         </dependency>
     </dependencies>
 
+    <!-- Sección de configuración de construcción del proyecto -->
     <build>
         <plugins>
+            <!-- Plugin para manejar dependencias de Maven -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <version>3.5.0</version>
             </plugin>
 
-            <!-- Spring Boot Maven Plugin -->
+            <!-- Plugin para empaquetar la aplicación Spring Boot -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <executions>
                     <execution>
                         <goals>
-                            <goal>repackage</goal>
+                            <goal>repackage</goal> <!-- Reempaquetado para hacer un JAR ejecutable -->
                         </goals>
                     </execution>
                 </executions>
             </plugin>
 
-            <!-- Code Formatter -->
+            <!-- Plugin para formatear el código automáticamente -->
             <plugin>
                 <groupId>net.revelc.code.formatter</groupId>
                 <artifactId>formatter-maven-plugin</artifactId>
                 <version>${formatter-maven-plugin.version}</version>
                 <configuration>
-                    <encoding>UTF-8</encoding>
+                    <encoding>UTF-8</encoding> <!-- Se define la codificación de caracteres -->
                 </configuration>
                 <executions>
                     <execution>
                         <goals>
-                            <goal>format</goal>
+                            <goal>format</goal> <!-- Objetivo de formatear el código -->
                         </goals>
                     </execution>
                 </executions>
             </plugin>
 
-            <!-- Maven Enforcer -->
+            <!-- Plugin para imponer reglas de calidad y versiones de dependencias -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
@@ -172,13 +179,13 @@
                     <execution>
                         <id>enforce-version</id>
                         <goals>
-                            <goal>enforce</goal>
+                            <goal>enforce</goal> <!-- Impone reglas sobre versiones de dependencias y Java -->
                         </goals>
                         <configuration>
                             <rules>
-                                <dependencyConvergence/>
+                                <dependencyConvergence/> <!-- Asegura que las versiones de dependencias sean consistentes -->
                                 <requireJavaVersion>
-                                    <version>${java.version}</version>
+                                    <version>${java.version}</version> <!-- Verifica que la versión de Java sea la correcta -->
                                 </requireJavaVersion>
                             </rules>
                         </configuration>
@@ -186,14 +193,14 @@
                 </executions>
             </plugin>
 
-            <!-- Maven Compiler -->
+            <!-- Plugin para la compilación del código Java -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${maven-compiler-plugin.version}</version>
                 <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
+                    <source>${java.version}</source> <!-- Versión de Java para el código fuente -->
+                    <target>${java.version}</target> <!-- Versión de Java para el código compilado -->
                     <annotationProcessorPaths>
                         <path>
                             <groupId>org.mapstruct</groupId>
@@ -215,7 +222,6 @@
             </plugin>
         </plugins>
     </build>
-
 <!--    <profiles>
         <profile>
             <id>OPENAPI</id>

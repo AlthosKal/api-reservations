@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Collections;
 import java.util.List;
 
+// Controlador REST para gestionar reservas
 @Validated
 @RestController
 @RequestMapping(value = "/reservations", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -24,9 +25,9 @@ import java.util.List;
 public class ReservationController implements ReservationResource {
 
     private static final Logger log = LoggerFactory.getLogger(ReservationController.class);
-
     private final ReservationService reservationService;
 
+    // Obtiene todas las reservas disponibles
     @GetMapping
     public ResponseEntity<List<ReservationDTO>> getReservations() {
         log.info("Getting all reservations");
@@ -34,6 +35,7 @@ public class ReservationController implements ReservationResource {
         return ResponseEntity.ok(reservations);
     }
 
+    // Obtiene una reserva específica por su ID
     @GetMapping("/{id}")
     public ResponseEntity<ReservationDTO> getReservationById(@PathVariable Long id) {
         log.info("Getting reservation with id {}", id);
@@ -41,6 +43,7 @@ public class ReservationController implements ReservationResource {
         return ResponseEntity.ok(reservation);
     }
 
+    // Crea una nueva reserva con validación y limitador de tasa para evitar sobrecarga
     @PostMapping
     @RateLimiter(name = "post-reservation", fallbackMethod = "fallbackPost")
     public ResponseEntity<ReservationDTO> createReservation(@RequestBody ReservationDTO reservation) {
@@ -49,14 +52,16 @@ public class ReservationController implements ReservationResource {
         return ResponseEntity.status(HttpStatus.CREATED).body(createdReservation);
     }
 
+    // Actualiza una reserva existente por su ID
     @PutMapping("/{id}")
     public ResponseEntity<ReservationDTO> updateReservation(@Valid @PathVariable Long id,
-            @RequestBody ReservationDTO reservation) {
+                                                            @RequestBody ReservationDTO reservation) {
         log.info("Updating reservation with id {}", id);
         ReservationDTO updatedReservation = reservationService.updateReservation(id, reservation);
         return ResponseEntity.ok(updatedReservation);
     }
 
+    // Elimina una reserva por su ID
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteReservation(@PathVariable Long id) {
         log.info("Deleting reservation with id {}", id);
@@ -64,31 +69,29 @@ public class ReservationController implements ReservationResource {
         return ResponseEntity.noContent().build();
     }
 
-    // Fallback method for createReservation
+    // Método de fallback en caso de superar el límite de solicitudes para crear reservas
     public ResponseEntity<ReservationDTO> fallbackPost(ReservationDTO reservation, Throwable throwable) {
-        // Log the reason why the fallback was triggered
+        // Log del motivo del fallback
         String fallbackMessage = "Rate limit exceeded. Please try again later.";
         log.warn("Fallback triggered for createReservation. Reason: {}", throwable.getMessage());
 
-        // Create a default response object for the reservation
+        // Crea un objeto de reserva de respuesta por defecto
         ReservationDTO fallbackReservation = new ReservationDTO();
         fallbackReservation.setId(null);
 
-        // Create a default ItineraryDTO
+        // Crea un itinerario de reserva predeterminado vacío
         ItineraryDTO fallbackItinerary = new ItineraryDTO();
-        fallbackItinerary.setSegments(Collections.emptyList()); // No segments available
-        fallbackItinerary.setPrice(null); // No price available
+        fallbackItinerary.setSegments(Collections.emptyList()); // Sin segmentos disponibles
+        fallbackItinerary.setPrice(null); // Sin precio disponible
 
-        // Set the default itinerary in the fallback reservation
+        // Asigna el itinerario vacío a la reserva
         fallbackReservation.setItinerary(fallbackItinerary);
 
-        // No passengers available in the fallback response
+        // No hay pasajeros en la respuesta de fallback
         fallbackReservation.setPassengers(Collections.emptyList());
 
-        // Return a TOO_MANY_REQUESTS status with the fallback response
-        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).header("Retry-After", "3") // Optional: Suggest a
-                                                                                              // retry after 3 seconds
+        // Retorna una respuesta con código HTTP 429 (Too Many Requests) y sugiere reintentar después de 3 segundos
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).header("Retry-After", "3")
                 .body(fallbackReservation);
     }
-
 }

@@ -3,6 +3,7 @@ package com.example.api_reservations.validations;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
+// Validador de la anotación personalizada CityFormatConstraint
 public class CityFormatValidator implements ConstraintValidator<CityFormatConstraint, String> {
     @Override
     public void initialize(CityFormatConstraint constraintAnnotation) {
