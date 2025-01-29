@@ -7,10 +7,7 @@ import org.mapstruct.Mapping;
 
 import java.util.List;
 
-@Mapper(
-        componentModel = "spring",
-        uses = {PriceMapper.class, SegmentMapper.class}
-)
+@Mapper(componentModel = "spring", uses = { PriceMapper.class, SegmentMapper.class })
 public interface ItineraryMapper {
 
     @Mapping(source = "price", target = "price")

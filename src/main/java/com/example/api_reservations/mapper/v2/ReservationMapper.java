@@ -7,10 +7,7 @@ import org.mapstruct.Mapping;
 
 import java.util.List;
 
-@Mapper(
-        componentModel = "spring",
-        uses = {PassengerMapper.class, ItineraryMapper.class}
-)
+@Mapper(componentModel = "spring", uses = { PassengerMapper.class, ItineraryMapper.class })
 public interface ReservationMapper {
 
     @Mapping(source = "passengers", target = "passengers")

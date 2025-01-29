@@ -4,11 +4,15 @@ import com.example.api_reservations.connector.CatalogConnector;
 import com.example.api_reservations.connector.response.CityDTO;
 import com.example.api_reservations.dto.ReservationDTO;
 import com.example.api_reservations.dto.SegmentDTO;
-import com.example.api_reservations.entity.Reservation;
+import com.example.api_reservations.entity.*;
+import com.example.api_reservations.exception.CatalogClientException;
+import com.example.api_reservations.exception.CatalogServerException;
 import com.example.api_reservations.exception.ResourceNotFoundException;
 import com.example.api_reservations.mapper.v2.ReservationMapper;
+import com.example.api_reservations.repository.ItineraryRepository;
+import com.example.api_reservations.repository.PriceRepository;
 import com.example.api_reservations.repository.ReservationRepository;
-import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,12 +20,22 @@ import java.util.List;
 
 @Service
 @Transactional
-@RequiredArgsConstructor
+@Slf4j
 public class ReservationServiceImpl implements ReservationService {
-
     private final ReservationRepository reservationRepository;
+    private final ItineraryRepository itineraryRepository;
+    private final PriceRepository priceRepository;
     private final ReservationMapper reservationMapper;
     private final CatalogConnector catalogConnector;
+
+    public ReservationServiceImpl(ReservationRepository reservationRepository, ItineraryRepository itineraryRepository,
+            PriceRepository priceRepository, ReservationMapper reservationMapper, CatalogConnector catalogConnector) {
+        this.reservationRepository = reservationRepository;
+        this.itineraryRepository = itineraryRepository;
+        this.priceRepository = priceRepository;
+        this.reservationMapper = reservationMapper;
+        this.catalogConnector = catalogConnector;
+    }
 
     @Override
     @Transactional(readOnly = true)
@@ -40,19 +54,15 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Override
     public ReservationDTO validateAndCreateReservation(ReservationDTO reservationDTO) {
-        // Iterar sobre cada segmento del itinerario
+        // Validar cada segmento del itinerario
         for (SegmentDTO segmentDTO : reservationDTO.getItinerary().getSegments()) {
-            // Validar la ciudad de origen con el CatalogConnector
-            CityDTO originCity = catalogConnector.getCityDTOBlocking(segmentDTO.getOrigin());
-            // Validar la ciudad de destino con el CatalogConnector
-            CityDTO destinationCity = catalogConnector.getCityDTOBlocking(segmentDTO.getDestination());
-
-            // Verificar si las ciudades son válidas
-            if (originCity == null) {
-                throw new ResourceNotFoundException("Invalid city code for Origin: " + segmentDTO.getOrigin());
-            }
-            if (destinationCity == null) {
-                throw new ResourceNotFoundException("Invalid city code for Destination: " + segmentDTO.getDestination());
+            try {
+                // Validar las ciudades de origen y destino
+                validateCity(segmentDTO.getOrigin(), "Origin");
+                validateCity(segmentDTO.getDestination(), "Destination");
+            } catch (CatalogClientException | CatalogServerException ex) {
+                log.error("Error during city validation: {}", ex.getMessage());
+                throw new ResourceNotFoundException("City validation failed for segment: " + segmentDTO + " " + ex);
             }
         }
 
@@ -60,25 +70,107 @@ public class ReservationServiceImpl implements ReservationService {
         return createReservation(reservationDTO);
     }
 
+    /**
+     * Método auxiliar para validar una ciudad.
+     *
+     * @param cityCode
+     *            Código de la ciudad a validar
+     * @param cityType
+     *            Tipo de ciudad (Origin o Destination)
+     */
+    private void validateCity(String cityCode, String cityType) {
+        CityDTO city = catalogConnector.getCityDTOBlocking(cityCode);
+        if (city == null) {
+            throw new ResourceNotFoundException("Invalid city code for " + cityType + ": " + cityCode);
+        }
+    }
 
     @Override
     public ReservationDTO createReservation(ReservationDTO reservationDTO) {
+
+        // Verificar si existe la reserva
+        if (reservationDTO.getId() != null) {
+            // SI el ID no es nulo, verificar si ya existe en la base de datos
+            boolean exists = reservationRepository.existsById(reservationDTO.getId());
+            if (exists) {
+                throw new ResourceNotFoundException("Reservation already exists with id: " + reservationDTO.getId());
+            }
+        }
+
+        // Convertir DTO a entidad
         Reservation reservation = reservationMapper.toEntity(reservationDTO);
+
+        // Guardar el Price primero (si no está siendo guardado automáticamente por cascade)
+        Price price = reservation.getItinerary().getPrice();
+        price = priceRepository.save(price); // Asegúrate de tener un PriceRepository
+
+        // Guardar el Itinerary y sus Segment
+        Itinerary itinerary = reservation.getItinerary();
+        itinerary.setPrice(price); // Asignar el Price guardado al Itinerary
+
+        // Asignar el Itinerary a cada Segment
+        for (Segment segment : itinerary.getSegments()) {
+            segment.setItinerary(itinerary); // Establece la relación inversa
+        }
+
+        // Guardar el Itinerary (esto también guardará los Segment debido a CascadeType.ALL)
+        itinerary = itineraryRepository.save(itinerary);
+
+        // Asignar el Itinerary guardado a la Reservation
+        reservation.setItinerary(itinerary);
+
+        // Asignar la Reservation a cada Passenger
+        for (Passenger passenger : reservation.getPassengers()) {
+            passenger.setReservation(reservation); // Establece la relación inversa
+        }
+
+        // Guardar la Reservation
         Reservation savedReservation = reservationRepository.save(reservation);
+
+        // Convertir la entidad guardada a DTO y devolverla
         return reservationMapper.toDTO(savedReservation);
     }
 
     @Override
     public ReservationDTO updateReservation(Long id, ReservationDTO reservationDTO) {
-        // Verificar si existe la reserva
-        if (!reservationRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Reservation not found with id: " + id);
+        // Cargar la reserva existente
+        Reservation existingReservation = reservationRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Reservation not found with id: " + id));
+
+        // Actualizar el Price
+        Price updatedPrice = reservationMapper.toEntity(reservationDTO).getItinerary().getPrice();
+        updatedPrice = priceRepository.save(updatedPrice);
+
+        // Actualizar el Itinerary
+        Itinerary updatedItinerary = reservationMapper.toEntity(reservationDTO).getItinerary();
+        updatedItinerary.setPrice(updatedPrice);
+
+        // Establecer la relación inversa entre los segmentos y el itinerario
+        for (Segment segment : updatedItinerary.getSegments()) {
+            segment.setItinerary(updatedItinerary);
+        }
+        updatedItinerary = itineraryRepository.save(updatedItinerary);
+
+        // Limpiar los pasajeros existentes
+        existingReservation.getPassengers().clear();
+        reservationRepository.flush(); // Forzar la sincronización con la base de datos para eliminar los pasajeros
+                                       // antiguos
+
+        // Asignar los nuevos pasajeros a la reserva existente
+        for (Passenger passenger : reservationMapper.toEntity(reservationDTO).getPassengers()) {
+            passenger.setReservation(existingReservation); // Establecer la relación inversa
+            existingReservation.getPassengers().add(passenger);
         }
 
-        Reservation reservation = reservationMapper.toEntity(reservationDTO);
-        reservation.setId(id);
-        Reservation updatedReservation = reservationRepository.save(reservation);
-        return reservationMapper.toDTO(updatedReservation);
+        // Actualizar los demás campos de la reserva
+        existingReservation.setItinerary(updatedItinerary);
+        existingReservation.setPassengers(existingReservation.getPassengers());
+
+        // Guardar la reserva actualizada
+        Reservation savedReservation = reservationRepository.save(existingReservation);
+
+        // Convertir la entidad guardada a DTO y devolverla
+        return reservationMapper.toDTO(savedReservation);
     }
 
     @Override

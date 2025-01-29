@@ -6,13 +6,12 @@ import jakarta.validation.Payload;
 import java.lang.annotation.*;
 
 /**
- * Annotation to enforce a specific format for city names.
- * This constraint ensures that the annotated element (field or method) 
- * contains a city name in the correct format (uppercase letters).
+ * Annotation to enforce a specific format for city names. This constraint ensures that the annotated element (field or
+ * method) contains a city name in the correct format (uppercase letters).
  */
 @Documented
 @Constraint(validatedBy = CityFormatValidator.class)
-@Target({ElementType.METHOD, ElementType.FIELD})
+@Target({ ElementType.METHOD, ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface CityFormatConstraint {
 
@@ -22,14 +21,14 @@ public @interface CityFormatConstraint {
      * @return the error message string
      */
     String message() default "Invalid city format. It should be in uppercase letters.";
-    
+
     /**
      * Specifies the processing groups with which this constraint is associated.
      *
      * @return an array of group classes
      */
     Class<?>[] groups() default {};
-    
+
     /**
      * Specifies the payload with which this constraint is associated.
      *

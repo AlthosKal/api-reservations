@@ -1,0 +1,64 @@
+services:
+  api-reservations:
+    image: yefff/repository-for-api-reservations:1.0.0
+    container_name: api-reservations
+    ports:
+      - "8080:8080"
+    depends_on:
+      - database-reservations
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://database-reservations:5432/ReservationsDB
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD:
+      CATALOG_SERVICE_URL: http://api-catalog:6070/api/flights/catalog  # Agregar esta línea
+    networks:
+      - api-reservation
+
+  database-reservations:
+    image: postgres:latest
+    container_name: database-reservations
+    environment:
+      POSTGRES_DB: ReservationsDB
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+    volumes:
+      - reservations:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - api-reservation
+
+  api-catalog:
+    image: adschosen/api-catalog:1.1.0
+    container_name: api-catalog
+    ports:
+      - "6070:6070"
+    depends_on:
+      - api-catalog-db
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://api-catalog-db:3306/flights_catalog
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: muppet
+    networks:
+      - api-reservation
+
+  api-catalog-db:
+    container_name: api-catalog-db
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: 'flights_catalog'
+      MYSQL_ROOT_PASSWORD: 'muppet'
+    ports:
+      - "3310:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - api-reservation
+
+networks:
+  api-reservation:
+    driver: bridge
+
+volumes:
+  reservations:
+  mysql_data:

@@ -6,10 +6,9 @@ import org.mapstruct.Mapper;
 
 import java.util.List;
 
-@Mapper(
-        componentModel = "spring"
-)
+@Mapper(componentModel = "spring")
 public interface PriceMapper {
     PriceDTO toDTO(Price price);
+
     Price toEntity(PriceDTO dto);
 }

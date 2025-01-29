@@ -26,7 +26,6 @@ public class Passenger {
     private LocalDate birthDate;
 
     @ManyToOne
-    @JoinColumn(name = "reservation_id", nullable = false)
+    @JoinColumn(name = "reservation_id", referencedColumnName = "id")
     private Reservation reservation;
 }
-

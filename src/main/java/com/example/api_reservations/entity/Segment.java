@@ -14,16 +14,13 @@ public class Segment {
     private Long id;
 
     private String origin;
-
     private String destination;
-
     private String departureDate;
-
     private String arrivalDate;
-
     private String carrier;
 
-    @ManyToOne
-    @JoinColumn(name = "itinerary_id", nullable = false) //Define la columna de la clave foranea
+    // Relación ManyToOne con Itinerary
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "itinerary_id", nullable = false) // Define la columna de la clave foránea
     private Itinerary itinerary;
 }
