@@ -10,7 +10,7 @@ services:
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://database-reservations:5432/ReservationsDB  # URL de la base de datos de reservas
       SPRING_DATASOURCE_USERNAME: postgres  # Usuario para acceder a la base de datos
-      SPRING_DATASOURCE_PASSWORD:  # Contraseña para la base de datos (debe completarse)
+      SPRING_DATASOURCE_PASSWORD:  root # Contraseña para la base de datos
       CATALOG_SERVICE_URL: http://api-catalog:6070/api/flights/catalog  # URL del servicio que proporciona el catálogo de vuelos
     networks:
       - api-reservation  # Conexión de este servicio a la red 'api-reservation'

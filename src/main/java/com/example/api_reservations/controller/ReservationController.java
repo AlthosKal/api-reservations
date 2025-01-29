@@ -38,8 +38,8 @@ public class ReservationController implements ReservationResource {
     // Obtiene una reserva específica por su ID
     @GetMapping("/{id}")
     public ResponseEntity<ReservationDTO> getReservationById(@PathVariable Long id) {
-        log.info("Getting reservation with id {}", id);
         ReservationDTO reservation = reservationService.getReservationById(id);
+        log.info("Getting reservation with id {}", id);
         return ResponseEntity.ok(reservation);
     }
 
@@ -47,8 +47,8 @@ public class ReservationController implements ReservationResource {
     @PostMapping
     @RateLimiter(name = "post-reservation", fallbackMethod = "fallbackPost")
     public ResponseEntity<ReservationDTO> createReservation(@RequestBody ReservationDTO reservation) {
-        log.info("Creating a new reservation");
         ReservationDTO createdReservation = reservationService.validateAndCreateReservation(reservation);
+        log.info("Creating a new reservation");
         return ResponseEntity.status(HttpStatus.CREATED).body(createdReservation);
     }
 
@@ -56,8 +56,8 @@ public class ReservationController implements ReservationResource {
     @PutMapping("/{id}")
     public ResponseEntity<ReservationDTO> updateReservation(@Valid @PathVariable Long id,
                                                             @RequestBody ReservationDTO reservation) {
-        log.info("Updating reservation with id {}", id);
         ReservationDTO updatedReservation = reservationService.updateReservation(id, reservation);
+        log.info("Updating reservation with id {}", id);
         return ResponseEntity.ok(updatedReservation);
     }
 
