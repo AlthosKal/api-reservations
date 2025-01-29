@@ -1,6 +1,6 @@
 services:
   api-reservations:
-    image: yefff/repository-for-api-reservations:1.0.0
+    image: yefff/api-reservations:1.0.0
     container_name: api-reservations
     ports:
       - "8080:8080"
