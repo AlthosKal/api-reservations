@@ -24,7 +24,7 @@
         <!-- Java Version -->
         <java.version>17</java.version>
 
-        <!-- Core Framework Versions -->
+        <!-- Version de Spring Boot -->
         <spring-boot.version>3.2.2</spring-boot.version>
 
         <!-- Dependency Versions -->
