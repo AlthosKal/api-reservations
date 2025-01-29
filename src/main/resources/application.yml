@@ -1,7 +1,7 @@
 management:
-  info:
-    env:
-      enabled: true
+  #info:
+    #env:
+      #enabled: true
   endpoint:
     health:
       show-details: always
@@ -9,37 +9,94 @@ management:
     web:
       base-path: /
       exposure:
-        include: "*"
+        include: "info,health"
+
+springdoc:
+  api-docs:
+    path: /api-docs # Ruta para los documentos OpenAPI
+  swagger-ui:
+    path: /swagger-ui.html # Ruta para acceder a Swagger UI
+    operationsSorter: method # Ordena las operaciones por método HTTP
 
 catalog:
   service:
-    url: http://localhost:6070/api/flights/catalog
+    url: http://localhost:6070/api/flights/catalog # URL base para el microservicio "catalog"
+
+http-connector:
+  hosts:
+    api-catalog:
+      host: localhost
+      port: 6070
+      endpoints:
+        get-city:
+          url: "/api/flights/catalog"
+          readTimeout: 5000           # Aumentar el timeout para leer la respuesta (ms)
+          writeTimeout: 5000          # Aumentar el timeout para enviar la solicitud (ms)
+          connectTimeout: 2000        # Timeout para establecer la conexión (ms)
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        failure-rate-threshold: 50                 # Porcentaje de fallos permitido antes de abrir el circuito
+        sliding-window-size: 50                    # Cantidad de solicitudes monitoreadas en la ventana
+        sliding-window-type: count_based           # Tipo de ventana (puede ser count_based o time_based)
+        automatic-transition-from-open-to-half-open-enabled: true
+        wait-duration-in-open-state: 3s            # Reducir el tiempo de espera en estado abierto
+        permitted-number-of-calls-in-half-open-state: 5 # Aumentar las llamadas permitidas en "half-open"
+        #register-health-indicator: true            # Activar indicador de salud en Actuator
+        record-exceptions:
+          - io.netty.handler.timeout.ReadTimeoutException # Excepciones a registrar como fallos
+          - java.lang.RuntimeException
+    instances:
+      api-catalog:
+        base-config: default
+
+  ratelimiter:
+    configs:
+      default:
+        limit-for-period: 100                       # Permitir al menos 100 solicitudes por periodo
+        limit-refresh-period: 1s                    # Refrescar el límite cada segundo
+        timeout-duration: 500ms                      # Timeout máximo antes de lanzar un error
+    instances:
+      post-reservation:
+        base-config: default
 
 server:
-  port: 8080
+  port: 8080                                       # Puerto del servidor
   compression:
     enabled: true
-    min-response-size: 2KB
+    min-response-size: 2KB                         # Comprime respuestas mayores a 2KB
     mime-types: application/json,application/xml,text/html,text/plain
+  tomcat:
+    threads:
+      max: 200                                     # Máximo número de threads permitidos
+      min-spare: 20                                # Mínimo número de threads en espera
+    connection-timeout: 20000                      # Timeout para conexiones (ms)
   servlet:
-    context-path: /api/v1
+    context-path: /api #/v1                          # Contexto de la API
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/ReservationsDB
-    username: postgres
-    password: root
+    url: jdbc:postgresql://localhost:5432/ReservationsDB # Configuración de la base de datos
+    username: postgres                              # Usuario de la base de datos
+    password: root                                  # Contraseña de la base de datos
+    hikari:
+      maximum-pool-size: 20                         # Número máximo de conexiones simultáneas a la base de datos
+      minimum-idle: 5                              # Conexiones mínimas en espera
+      idle-timeout: 20000                           # Tiempo máximo de inactividad de una conexión (ms)
+      connection-timeout: 10000                     # Timeout para obtener una conexión (ms)
+      max-lifetime: 1800000                         # Tiempo máximo de vida de una conexión (ms)
   jpa:
     hibernate:
-      ddl-auto: update
-    show-sql: true
+      ddl-auto: update                              # Actualiza el esquema de la base de datos al iniciar
+    show-sql: true                                  # Muestra las consultas SQL en los logs
     properties:
       hibernate:
-        format_sql: true
-
+        format_sql: true                            # Formato legible de las consultas SQL
 
 info:
   application:
-    groupId: '@project.groupId@'
-    artifactId: '@project.artifactId@'
-    version: '@project.version@'
+    groupId: '@project.groupId@'                   # Grupo del proyecto
+    artifactId: '@project.artifactId@'             # Artefacto del proyecto
+    version: '@project.version@'                   # Versión del proyecto

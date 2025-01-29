@@ -1,17 +1,17 @@
 package com.example.api_reservations.exception;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.HttpMediaTypeNotAcceptableException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
 
-@ControllerAdvice
+// Manejador global de excepciones para toda la aplicación
+@RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    // Manejo de excepciones generales no capturadas específicamente
     @ExceptionHandler(Exception.class)
     public ResponseEntity<CustomErrorResponse> handleGlobalException(Exception ex) {
         CustomErrorResponse errorResponse = new CustomErrorResponse(
@@ -19,23 +19,6 @@ public class GlobalExceptionHandler {
                 ex.getMessage(),
                 LocalDateTime.now()
         );
-        return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(errorResponse);
-    }
-
-    @ExceptionHandler(HttpMediaTypeNotAcceptableException.class)
-    public ResponseEntity<CustomErrorResponse> handleMediaTypeNotAcceptableException(
-            HttpMediaTypeNotAcceptableException ex) {
-        CustomErrorResponse errorResponse = new CustomErrorResponse(
-                HttpStatus.NOT_ACCEPTABLE.value(),
-                "Acceptable MIME type not found",
-                LocalDateTime.now()
-        );
-        return ResponseEntity
-                .status(HttpStatus.NOT_ACCEPTABLE)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(errorResponse);
+        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

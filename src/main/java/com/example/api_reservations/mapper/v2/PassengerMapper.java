@@ -1,19 +1,18 @@
 package com.example.api_reservations.mapper.v2;
 
 import com.example.api_reservations.dto.PassengerDTO;
-import com.example.api_reservations.entity.Itinerary;
 import com.example.api_reservations.entity.Passenger;
 import org.mapstruct.Mapper;
 
 import java.util.List;
 
-@Mapper(
-        componentModel = "spring"
-)
+// Mapper para convertir entre Passenger y PassengerDTO
+@Mapper(componentModel = "spring")
 public interface PassengerMapper {
     PassengerDTO toDTO(Passenger passenger);
     Passenger toEntity(PassengerDTO dto);
-    // Add additional methods for mapping lists
-    List<PassengerDTO> toDTOList(List<Itinerary> itineraries);
+
+    // Métodos auxiliares para convertir listas
+    List<PassengerDTO> toDTOList(List<Passenger> passengers);
     List<Passenger> toEntityList(List<PassengerDTO> dtos);
 }

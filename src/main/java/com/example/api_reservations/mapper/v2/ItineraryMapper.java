@@ -7,10 +7,8 @@ import org.mapstruct.Mapping;
 
 import java.util.List;
 
-@Mapper(
-        componentModel = "spring",
-        uses = {PriceMapper.class, SegmentMapper.class}
-)
+// Mapper para convertir entre Itinerary y ItineraryDTO
+@Mapper(componentModel = "spring", uses = { PriceMapper.class, SegmentMapper.class })
 public interface ItineraryMapper {
 
     @Mapping(source = "price", target = "price")
@@ -21,8 +19,7 @@ public interface ItineraryMapper {
     @Mapping(source = "segments", target = "segments")
     Itinerary toEntity(ItineraryDTO dto);
 
-    // Convenience method for mapping lists
+    // Métodos auxiliares para convertir listas
     List<ItineraryDTO> toDTOList(List<Itinerary> itineraries);
-
     List<Itinerary> toEntityList(List<ItineraryDTO> dtos);
 }

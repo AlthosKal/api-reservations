@@ -3,6 +3,7 @@ package com.example.api_reservations.validations;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
+// Validador de la anotación personalizada CityFormatConstraint
 public class CityFormatValidator implements ConstraintValidator<CityFormatConstraint, String> {
     @Override
     public void initialize(CityFormatConstraint constraintAnnotation) {
@@ -11,9 +12,7 @@ public class CityFormatValidator implements ConstraintValidator<CityFormatConstr
 
     @Override
     public boolean isValid(String field, ConstraintValidatorContext context) {
-        return field != null &&
-                field.length() ==3 &&
-                field.matches("[A-Z]{3}") &&
-                field.chars().allMatch(Character::isUpperCase);
+        return field != null && field.length() == 3 && field.matches("[A-Z]{3}")
+                && field.chars().allMatch(Character::isUpperCase);
     }
 }

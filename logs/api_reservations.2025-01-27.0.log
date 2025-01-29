@@ -1,0 +1,8 @@
+2025-01-27 20:47:56:990 [main] INFO  c.e.a.ApiReservationsApplicationTests - Starting ApiReservationsApplicationTests using Java 17.0.13 with PID 29516 (started by yeferson in /home/yeferson/JAVA/api-reservations)
+2025-01-27 20:47:56:992 [main] INFO  c.e.a.ApiReservationsApplicationTests - No active profile set, falling back to 1 default profile: "default"
+2025-01-27 20:50:08:527 [main] INFO  c.e.a.ApiReservationsApplication - Starting ApiReservationsApplication using Java 17.0.13 with PID 29985 (/home/yeferson/JAVA/api-reservations/target/classes started by yeferson in /home/yeferson/JAVA/api-reservations)
+2025-01-27 20:50:08:528 [main] INFO  c.e.a.ApiReservationsApplication - No active profile set, falling back to 1 default profile: "default"
+2025-01-27 20:50:12:367 [main] INFO  c.e.a.ApiReservationsApplication - Started ApiReservationsApplication in 4.216 seconds (process running for 4.608)
+2025-01-27 20:50:36:109 [main] INFO  c.e.a.ApiReservationsApplicationTests - Starting ApiReservationsApplicationTests using Java 17.0.13 with PID 30304 (started by yeferson in /home/yeferson/JAVA/api-reservations)
+2025-01-27 20:50:36:110 [main] INFO  c.e.a.ApiReservationsApplicationTests - No active profile set, falling back to 1 default profile: "default"
+2025-01-27 20:50:41:281 [main] INFO  c.e.a.ApiReservationsApplicationTests - Started ApiReservationsApplicationTests in 5.452 seconds (process running for 6.489)

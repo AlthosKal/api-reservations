@@ -7,10 +7,8 @@ import org.mapstruct.Mapping;
 
 import java.util.List;
 
-@Mapper(
-        componentModel = "spring",
-        uses = {PassengerMapper.class, ItineraryMapper.class}
-)
+// Mapper para convertir entre Reservation y ReservationDTO
+@Mapper(componentModel = "spring", uses = { PassengerMapper.class, ItineraryMapper.class })
 public interface ReservationMapper {
 
     @Mapping(source = "passengers", target = "passengers")
@@ -21,7 +19,7 @@ public interface ReservationMapper {
     @Mapping(source = "itinerary", target = "itinerary")
     Reservation toEntity(ReservationDTO dto);
 
+    // Métodos auxiliares para convertir listas
     List<ReservationDTO> toDTOList(List<Reservation> reservations);
-
     List<Reservation> toEntityList(List<ReservationDTO> dtos);
 }

@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.math.BigDecimal;
 
+// Entidad que representa el precio de una reserva
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -15,9 +16,7 @@ public class Price {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private BigDecimal totalPrice;
-
-    private BigDecimal totalTax;
-
-    private BigDecimal basePrice;
+    private BigDecimal totalPrice; // Precio total
+    private BigDecimal totalTax; // Impuesto total
+    private BigDecimal basePrice; // Precio base sin impuestos
 }

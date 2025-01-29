@@ -4,11 +4,8 @@ import com.example.api_reservations.dto.PriceDTO;
 import com.example.api_reservations.entity.Price;
 import org.mapstruct.Mapper;
 
-import java.util.List;
-
-@Mapper(
-        componentModel = "spring"
-)
+// Mapper para convertir entre Price y PriceDTO
+@Mapper(componentModel = "spring")
 public interface PriceMapper {
     PriceDTO toDTO(Price price);
     Price toEntity(PriceDTO dto);

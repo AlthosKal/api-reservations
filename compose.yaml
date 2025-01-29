@@ -1,0 +1,70 @@
+services:
+  # Servicio que maneja las reservas de vuelos
+  api-reservations:
+    image: yefff/api-reservations:1.0.0  # Imagen del contenedor para la API de reservas
+    container_name: api-reservations  # Nombre del contenedor
+    ports:
+      - "8080:8080"  # Expone el puerto 8080 del contenedor en el puerto 8080 del host
+    depends_on:
+      - database-reservations  # Este servicio depende de la base de datos de reservas, que debe estar operativo antes
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://database-reservations:5432/ReservationsDB  # URL de la base de datos de reservas
+      SPRING_DATASOURCE_USERNAME: postgres  # Usuario para acceder a la base de datos
+      SPRING_DATASOURCE_PASSWORD:  # Contraseña para la base de datos (debe completarse)
+      CATALOG_SERVICE_URL: http://api-catalog:6070/api/flights/catalog  # URL del servicio que proporciona el catálogo de vuelos
+    networks:
+      - api-reservation  # Conexión de este servicio a la red 'api-reservation'
+
+  # Servicio para la base de datos de reservas (PostgreSQL)
+  database-reservations:
+    image: postgres:latest  # Imagen de contenedor para PostgreSQL
+    container_name: database-reservations  # Nombre del contenedor de la base de datos
+    environment:
+      POSTGRES_DB: ReservationsDB  # Nombre de la base de datos
+      POSTGRES_USER: postgres  # Usuario de la base de datos
+      POSTGRES_PASSWORD: root  # Contraseña para el acceso a la base de datos
+    volumes:
+      - reservations:/var/lib/postgresql/data  # Persistencia de datos en el volumen 'reservations'
+    ports:
+      - "5432:5432"  # Expone el puerto 5432 para conexiones de la base de datos
+    networks:
+      - api-reservation  # Conexión de este servicio a la red 'api-reservation'
+
+  # Servicio que maneja el catálogo de vuelos
+  api-catalog:
+    image: adschosen/api-catalog:1.1.0  # Imagen del contenedor para la API del catálogo de vuelos
+    container_name: api-catalog  # Nombre del contenedor
+    ports:
+      - "6070:6070"  # Expone el puerto 6070 del contenedor en el puerto 6070 del host
+    depends_on:
+      - api-catalog-db  # Este servicio depende de la base de datos del catálogo de vuelos, que debe estar operativo antes
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://api-catalog-db:3306/flights_catalog  # URL de la base de datos del catálogo
+      SPRING_DATASOURCE_USERNAME: root  # Usuario para acceder a la base de datos
+      SPRING_DATASOURCE_PASSWORD: muppet  # Contraseña para la base de datos
+    networks:
+      - api-reservation  # Conexión de este servicio a la red 'api-reservation'
+
+  # Servicio para la base de datos del catálogo de vuelos (MySQL)
+  api-catalog-db:
+    container_name: api-catalog-db  # Nombre del contenedor de la base de datos
+    image: mysql:8.0  # Imagen de contenedor para MySQL
+    environment:
+      MYSQL_DATABASE: 'flights_catalog'  # Nombre de la base de datos
+      MYSQL_ROOT_PASSWORD: 'muppet'  # Contraseña de la base de datos
+    ports:
+      - "3310:3306"  # Expone el puerto 3306 de MySQL en el puerto 3310 del host
+    volumes:
+      - mysql_data:/var/lib/mysql  # Persistencia de datos en el volumen 'mysql_data'
+    networks:
+      - api-reservation  # Conexión de este servicio a la red 'api-reservation'
+
+# Definición de redes para los servicios
+networks:
+  api-reservation:
+    driver: bridge  # Usamos un controlador 'bridge' para crear una red interna entre los servicios
+
+# Definición de volúmenes para la persistencia de datos
+volumes:
+  reservations:  # Volumen para la base de datos de reservas
+  mysql_data:  # Volumen para la base de datos del catálogo de vuelos

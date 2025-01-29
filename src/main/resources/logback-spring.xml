@@ -1,0 +1,39 @@
+<configuration>
+    <!-- Definir variables -->
+    <property name="LOG_LEVEL" value="INFO" /> <!-- Nivel de log por defecto -->
+    <property name="LOG_DIR" value="./logs" /> <!-- Carpeta para los archivos de log -->
+    <property name="APP_NAME" value="api_reservations" /> <!-- Nombre de la aplicación -->
+
+    <!-- Appender para consola con colores -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss:SSS} [%thread] %highlight(%-5level) %cyan(%logger{36}) - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Appender para archivo (sin colores) -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_DIR}/${APP_NAME}.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_DIR}/${APP_NAME}.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>10MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss:SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Logger específico para la aplicación -->
+    <logger name="com.example.api_reservations" level="${LOG_LEVEL}" additivity="false">
+        <appender-ref ref="FILE" /> <!-- Enviar logs a archivo -->
+        <appender-ref ref="CONSOLE" /> <!-- Enviar logs a consola -->
+    </logger>
+
+    <!-- Logger raíz -->
+    <root level="${LOG_LEVEL}">
+        <appender-ref ref="CONSOLE" /> <!-- Solo consola para otros logs -->
+    </root>
+</configuration>
