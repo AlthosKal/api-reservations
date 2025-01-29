@@ -73,7 +73,7 @@ public interface ReservationResource {
     @Operation(description = "Create one reservation", responses = {
             @ApiResponse(responseCode = "201", description = "Reservation created successfully", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ReservationDTO.class))),
             @ApiResponse(responseCode = "400", description = "The data reservation is invalid", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
-            @ApiResponse(responseCode = "429", description = "Too many requests. Please try again later.", headers = @Header(name = "Retry-After", schema = @Schema(type = "integer"), description = "Time in seconds until you can retry")),
+            @ApiResponse(responseCode = "429", description = "Too many requests or a necessary service has failed in process. Please try again later.", headers = @Header(name = "Retry-After", schema = @Schema(type = "integer"), description = "Time in seconds until you can retry")),
             @ApiResponse(responseCode = "500", description = "Error while creating reservation", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)) }, requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, examples = {
                     @ExampleObject(name = "Valid reservation example", summary = "Example to create a reservation", value = """
                                 {
