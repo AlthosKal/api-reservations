@@ -94,6 +94,7 @@ spring:
     properties:
       hibernate:
         format_sql: true                            # Formato legible de las consultas SQL
+    open-in-view: false
 
 info:
   application:

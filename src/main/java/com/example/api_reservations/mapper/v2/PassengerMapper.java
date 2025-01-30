@@ -10,9 +10,11 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface PassengerMapper {
     PassengerDTO toDTO(Passenger passenger);
+
     Passenger toEntity(PassengerDTO dto);
 
     // Métodos auxiliares para convertir listas
     List<PassengerDTO> toDTOList(List<Passenger> passengers);
+
     List<Passenger> toEntityList(List<PassengerDTO> dtos);
 }
