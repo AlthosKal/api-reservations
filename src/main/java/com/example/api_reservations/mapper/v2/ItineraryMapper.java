@@ -21,5 +21,6 @@ public interface ItineraryMapper {
 
     // Métodos auxiliares para convertir listas
     List<ItineraryDTO> toDTOList(List<Itinerary> itineraries);
+
     List<Itinerary> toEntityList(List<ItineraryDTO> dtos);
 }

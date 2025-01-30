@@ -21,5 +21,6 @@ public interface ReservationMapper {
 
     // Métodos auxiliares para convertir listas
     List<ReservationDTO> toDTOList(List<Reservation> reservations);
+
     List<Reservation> toEntityList(List<ReservationDTO> dtos);
 }

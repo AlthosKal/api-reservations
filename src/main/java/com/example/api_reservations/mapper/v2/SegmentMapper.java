@@ -8,5 +8,6 @@ import org.mapstruct.Mapper;
 @Mapper(componentModel = "spring")
 public interface SegmentMapper {
     SegmentDTO toDTO(Segment segment);
+
     Segment toEntity(SegmentDTO segmentDTO);
 }

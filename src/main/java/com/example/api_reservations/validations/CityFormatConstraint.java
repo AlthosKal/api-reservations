@@ -6,8 +6,8 @@ import jakarta.validation.Payload;
 import java.lang.annotation.*;
 
 /**
- * Anotación para imponer un formato específico para los nombres de ciudades.
- * Esta restricción asegura que el elemento anotado (campo o método) contenga un nombre de ciudad en el formato correcto (letras mayúsculas).
+ * Anotación para imponer un formato específico para los nombres de ciudades. Esta restricción asegura que el elemento
+ * anotado (campo o método) contenga un nombre de ciudad en el formato correcto (letras mayúsculas).
  */
 @Documented
 @Constraint(validatedBy = CityFormatValidator.class)

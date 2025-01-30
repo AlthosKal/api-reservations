@@ -31,7 +31,7 @@ public class CatalogConnector {
 
     // Constructor que configura el WebClient con base en la configuración proporcionada
     public CatalogConnector(@Value("${catalog.service.url}") String catalogServiceUrl,
-                            HttpConnectorConfiguration configuration) {
+            HttpConnectorConfiguration configuration) {
 
         // Obtiene la configuración del host "api-catalog"
         HttpConnectorConfiguration.HostConfiguration hostConfig = configuration.getHosts().get("api-catalog");
@@ -43,23 +43,20 @@ public class CatalogConnector {
                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, Math.toIntExact(endpointConfig.getConnectTimeout()))
                 .doOnConnected(conn -> conn
                         .addHandlerLast(new ReadTimeoutHandler(endpointConfig.getReadTimeout(), TimeUnit.MILLISECONDS))
-                        .addHandlerLast(new WriteTimeoutHandler(endpointConfig.getWriteTimeout(), TimeUnit.MILLISECONDS)));
+                        .addHandlerLast(
+                                new WriteTimeoutHandler(endpointConfig.getWriteTimeout(), TimeUnit.MILLISECONDS)));
 
         // Configura WebClient con la URL base y los encabezados adecuados
-        this.webClient = WebClient.builder()
-                .baseUrl(catalogServiceUrl)
+        this.webClient = WebClient.builder().baseUrl(catalogServiceUrl)
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                .clientConnector(new ReactorClientHttpConnector(httpClient))
-                .build();
+                .clientConnector(new ReactorClientHttpConnector(httpClient)).build();
     }
 
     // Método para obtener la información de una ciudad utilizando un patrón Circuit Breaker
     @CircuitBreaker(name = "api-catalog", fallbackMethod = "fallbackGetCity")
     public Mono<CityDTO> getCityDTO(String code) {
-        return webClient.get()
-                .uri("/city/{code}", code)
-                .retrieve()
+        return webClient.get().uri("/city/{code}", code).retrieve()
                 // Manejo de errores para respuestas 4XX
                 .onStatus(HttpStatusCode::is4xxClientError,
                         response -> Mono.error(new CatalogClientException("City not found with code: " + code)))

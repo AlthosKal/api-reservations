@@ -19,8 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 /**
- * Implementación del servicio de reservaciones que maneja la lógica de negocio
- * para la gestión de reservaciones, itinerarios, precios y pasajeros.
+ * Implementación del servicio de reservaciones que maneja la lógica de negocio para la gestión de reservaciones,
+ * itinerarios, precios y pasajeros.
  */
 @Service
 @Transactional
@@ -46,8 +46,7 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     /**
-     * {@inheritDoc}
-     * Implementa consulta de solo lectura para obtener todas las reservaciones.
+     * {@inheritDoc} Implementa consulta de solo lectura para obtener todas las reservaciones.
      */
     @Override
     @Transactional(readOnly = true)
@@ -57,8 +56,7 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     /**
-     * {@inheritDoc}
-     * Implementa consulta de solo lectura para obtener una reservación por ID.
+     * {@inheritDoc} Implementa consulta de solo lectura para obtener una reservación por ID.
      */
     @Override
     @Transactional(readOnly = true)
@@ -69,8 +67,7 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     /**
-     * {@inheritDoc}
-     * Valida las ciudades de origen y destino de cada segmento antes de crear la reservación.
+     * {@inheritDoc} Valida las ciudades de origen y destino de cada segmento antes de crear la reservación.
      */
     @Override
     public ReservationDTO validateAndCreateReservation(ReservationDTO reservationDTO) {
@@ -92,11 +89,18 @@ public class ReservationServiceImpl implements ReservationService {
 
     /**
      * Valida la existencia de una ciudad en el catálogo.
-     * @param cityCode Código de la ciudad a validar
-     * @param cityType Tipo de ciudad (Origin/Destination)
-     * @throws ResourceNotFoundException si la ciudad no existe
-     * @throws CatalogClientException si hay un error de cliente al consultar el catálogo
-     * @throws CatalogServerException si hay un error de servidor al consultar el catálogo
+     *
+     * @param cityCode
+     *            Código de la ciudad a validar
+     * @param cityType
+     *            Tipo de ciudad (Origin/Destination)
+     *
+     * @throws ResourceNotFoundException
+     *             si la ciudad no existe
+     * @throws CatalogClientException
+     *             si hay un error de cliente al consultar el catálogo
+     * @throws CatalogServerException
+     *             si hay un error de servidor al consultar el catálogo
      */
     private void validateCity(String cityCode, String cityType) {
         CityDTO city = catalogConnector.getCityDTOBlocking(cityCode);
@@ -104,10 +108,10 @@ public class ReservationServiceImpl implements ReservationService {
             throw new ResourceNotFoundException("Invalid city code for " + cityType + ": " + cityCode);
         }
     }
+
     /**
-     * {@inheritDoc}
-     * Implementa la lógica de creación de una nueva reservación manejando las relaciones
-     * entre entidades y su persistencia en cascada.
+     * {@inheritDoc} Implementa la lógica de creación de una nueva reservación manejando las relaciones entre entidades
+     * y su persistencia en cascada.
      */
 
     @Override
@@ -157,9 +161,8 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     /**
-     * {@inheritDoc}
-     * Implementa la actualización de una reservación existente, manejando la actualización
-     * de todas las entidades relacionadas y sus relaciones.
+     * {@inheritDoc} Implementa la actualización de una reservación existente, manejando la actualización de todas las
+     * entidades relacionadas y sus relaciones.
      */
     @Override
     public ReservationDTO updateReservation(Long id, ReservationDTO reservationDTO) {
@@ -204,8 +207,7 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     /**
-     * {@inheritDoc}
-     * Implementa la eliminación de una reservación verificando su existencia previa.
+     * {@inheritDoc} Implementa la eliminación de una reservación verificando su existencia previa.
      */
     @Override
     public void deleteReservation(Long id) {

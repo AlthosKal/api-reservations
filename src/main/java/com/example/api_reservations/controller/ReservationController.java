@@ -30,8 +30,8 @@ public class ReservationController implements ReservationResource {
     // Obtiene todas las reservas disponibles
     @GetMapping
     public ResponseEntity<List<ReservationDTO>> getReservations() {
-        log.info("Getting all reservations");
         List<ReservationDTO> reservations = reservationService.getReservations();
+        log.info("Getting all reservations");
         return ResponseEntity.ok(reservations);
     }
 
@@ -55,7 +55,7 @@ public class ReservationController implements ReservationResource {
     // Actualiza una reserva existente por su ID
     @PutMapping("/{id}")
     public ResponseEntity<ReservationDTO> updateReservation(@Valid @PathVariable Long id,
-                                                            @RequestBody ReservationDTO reservation) {
+            @RequestBody ReservationDTO reservation) {
         ReservationDTO updatedReservation = reservationService.updateReservation(id, reservation);
         log.info("Updating reservation with id {}", id);
         return ResponseEntity.ok(updatedReservation);
@@ -64,8 +64,8 @@ public class ReservationController implements ReservationResource {
     // Elimina una reserva por su ID
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteReservation(@PathVariable Long id) {
-        log.info("Deleting reservation with id {}", id);
         reservationService.deleteReservation(id);
+        log.info("Deleting reservation with id {}", id);
         return ResponseEntity.noContent().build();
     }
 
@@ -91,7 +91,6 @@ public class ReservationController implements ReservationResource {
         fallbackReservation.setPassengers(Collections.emptyList());
 
         // Retorna una respuesta con código HTTP 429 (Too Many Requests) y sugiere reintentar después de 3 segundos
-        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).header("Retry-After", "3")
-                .body(fallbackReservation);
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).header("Retry-After", "3").body(fallbackReservation);
     }
 }
