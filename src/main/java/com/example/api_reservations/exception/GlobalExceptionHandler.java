@@ -1,5 +1,6 @@
 package com.example.api_reservations.exception;
 
+import com.example.api_reservations.exception.exceptions.ConcurrencyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -17,5 +18,12 @@ public class GlobalExceptionHandler {
         CustomErrorResponse errorResponse = new CustomErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 ex.getMessage(), LocalDateTime.now());
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(ConcurrencyException.class)
+    public ResponseEntity<CustomErrorResponse> handleConcurrencyException(ConcurrencyException ex) {
+        CustomErrorResponse errorResponse = new CustomErrorResponse(HttpStatus.CONFLICT.value(), ex.getMessage(),
+                LocalDateTime.now());
+        return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
     }
 }

@@ -1,7 +1,7 @@
 package com.example.api_reservations.services.reservation;
 
 import com.example.api_reservations.dto.ReservationDTO;
-import com.example.api_reservations.exception.ResourceNotFoundException;
+import com.example.api_reservations.exception.exceptions.ResourceNotFoundException;
 
 import java.util.List;
 

@@ -2,8 +2,8 @@ package com.example.api_reservations.connector;
 
 import com.example.api_reservations.connector.configuration.HttpConnectorConfiguration;
 import com.example.api_reservations.connector.response.CityDTO;
-import com.example.api_reservations.exception.CatalogClientException;
-import com.example.api_reservations.exception.CatalogServerException;
+import com.example.api_reservations.exception.exceptions.CatalogClientException;
+import com.example.api_reservations.exception.exceptions.CatalogServerException;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.netty.channel.ChannelOption;
 import io.netty.handler.timeout.ReadTimeoutHandler;

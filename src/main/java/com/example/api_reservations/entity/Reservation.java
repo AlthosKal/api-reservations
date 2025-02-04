@@ -17,6 +17,8 @@ public class Reservation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Version // Agrega control de versión para Optimistic Locking
+    private Integer version;
     // Relación OneToMany con Passenger (Una reserva puede tener múltiples pasajeros)
     @OneToMany(mappedBy = "reservation", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Passenger> passengers = new ArrayList<>();

@@ -5,14 +5,16 @@ import com.example.api_reservations.connector.response.CityDTO;
 import com.example.api_reservations.dto.ReservationDTO;
 import com.example.api_reservations.dto.SegmentDTO;
 import com.example.api_reservations.entity.*;
-import com.example.api_reservations.exception.CatalogClientException;
-import com.example.api_reservations.exception.CatalogServerException;
-import com.example.api_reservations.exception.ResourceNotFoundException;
+import com.example.api_reservations.exception.exceptions.CatalogClientException;
+import com.example.api_reservations.exception.exceptions.CatalogServerException;
+import com.example.api_reservations.exception.exceptions.ConcurrencyException;
+import com.example.api_reservations.exception.exceptions.ResourceNotFoundException;
 import com.example.api_reservations.mapper.v2.ReservationMapper;
 import com.example.api_reservations.repository.ItineraryRepository;
 import com.example.api_reservations.repository.PriceRepository;
 import com.example.api_reservations.repository.ReservationRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -164,46 +166,50 @@ public class ReservationServiceImpl implements ReservationService {
      * {@inheritDoc} Implementa la actualización de una reservación existente, manejando la actualización de todas las
      * entidades relacionadas y sus relaciones.
      */
+    @Transactional
     @Override
     public ReservationDTO updateReservation(Long id, ReservationDTO reservationDTO) {
-        // Cargar la reserva existente
-        Reservation existingReservation = reservationRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Reservation not found with id: " + id));
+        try {// Cargar la reserva existente
+            Reservation existingReservation = reservationRepository.findById(id)
+                    .orElseThrow(() -> new ResourceNotFoundException("Reservation not found with id: " + id));
 
-        // Actualizar el Price
-        Price updatedPrice = reservationMapper.toEntity(reservationDTO).getItinerary().getPrice();
-        updatedPrice = priceRepository.save(updatedPrice);
+            // Actualizar el Price
+            Price updatedPrice = reservationMapper.toEntity(reservationDTO).getItinerary().getPrice();
+            updatedPrice = priceRepository.save(updatedPrice);
 
-        // Actualizar el Itinerary
-        Itinerary updatedItinerary = reservationMapper.toEntity(reservationDTO).getItinerary();
-        updatedItinerary.setPrice(updatedPrice);
+            // Actualizar el Itinerary
+            Itinerary updatedItinerary = reservationMapper.toEntity(reservationDTO).getItinerary();
+            updatedItinerary.setPrice(updatedPrice);
 
-        // Establecer la relación inversa entre los segmentos y el itinerario
-        for (Segment segment : updatedItinerary.getSegments()) {
-            segment.setItinerary(updatedItinerary);
+            // Establecer la relación inversa entre los segmentos y el itinerario
+            for (Segment segment : updatedItinerary.getSegments()) {
+                segment.setItinerary(updatedItinerary);
+            }
+            updatedItinerary = itineraryRepository.save(updatedItinerary);
+
+            // Limpiar los pasajeros existentes
+            existingReservation.getPassengers().clear();
+            reservationRepository.flush(); // Forzar la sincronización con la base de datos para eliminar los pasajeros
+            // antiguos
+
+            // Asignar los nuevos pasajeros a la reserva existente
+            for (Passenger passenger : reservationMapper.toEntity(reservationDTO).getPassengers()) {
+                passenger.setReservation(existingReservation); // Establecer la relación inversa
+                existingReservation.getPassengers().add(passenger);
+            }
+
+            // Actualizar los demás campos de la reserva
+            existingReservation.setItinerary(updatedItinerary);
+            existingReservation.setPassengers(existingReservation.getPassengers());
+
+            // Guardar la reserva actualizada
+            Reservation savedReservation = reservationRepository.save(existingReservation);
+
+            // Convertir la entidad guardada a DTO y devolverla
+            return reservationMapper.toDTO(savedReservation);
+        } catch (OptimisticLockingFailureException e) {
+            throw new ConcurrencyException("The reservation was modified by another transtacion. Please retry");
         }
-        updatedItinerary = itineraryRepository.save(updatedItinerary);
-
-        // Limpiar los pasajeros existentes
-        existingReservation.getPassengers().clear();
-        reservationRepository.flush(); // Forzar la sincronización con la base de datos para eliminar los pasajeros
-                                       // antiguos
-
-        // Asignar los nuevos pasajeros a la reserva existente
-        for (Passenger passenger : reservationMapper.toEntity(reservationDTO).getPassengers()) {
-            passenger.setReservation(existingReservation); // Establecer la relación inversa
-            existingReservation.getPassengers().add(passenger);
-        }
-
-        // Actualizar los demás campos de la reserva
-        existingReservation.setItinerary(updatedItinerary);
-        existingReservation.setPassengers(existingReservation.getPassengers());
-
-        // Guardar la reserva actualizada
-        Reservation savedReservation = reservationRepository.save(existingReservation);
-
-        // Convertir la entidad guardada a DTO y devolverla
-        return reservationMapper.toDTO(savedReservation);
     }
 
     /**
